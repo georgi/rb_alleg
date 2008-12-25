@@ -1,0 +1,30 @@
+MS_LIBS = kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib
+
+CFLAGS = -nologo -D _WINDLL -EHsc -c -O2 -Ob2
+# CFLAGS = -nologo -D _WINDLL -EHsc -c -Zi
+LIBPATH = /LIBPATH:lib 
+
+LIBNAME = Allegro
+LIBS = msvcrt-ruby18.lib alleg.lib 
+INCLUDES = -I include/allegro 
+
+OBJ = obj/allegro.obj obj/bitmap.obj obj/color.obj obj/config.obj obj/fx.obj obj/gfx.obj obj/joystick.obj obj/key.obj obj/matrix.obj obj/mouse.obj obj/rb_alleg.obj obj/text.obj obj/v3d.obj obj/zbuffer.obj
+
+CC = cl $(CFLAGS) $(INCLUDES)  
+LN = link -nologo $(LIBPATH) -DLL $(MS_LIBS) $(LIBS)
+ 
+all: $(LIBNAME).so
+
+$(LIBNAME).so: $(OBJ)
+	$(LN) -out:$(LIBNAME).so $(OBJ)
+	
+obj/%.obj : src/%.c
+	$(CC) $< -Fo$@ -Fa$@.s
+
+obj/%.obj : src/%.cpp
+	$(CC) $< -Fo$@
+	
+clean:
+	rm obj/*.obj	
+	rm $(LIBNAME).so
+	
