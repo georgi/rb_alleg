@@ -268,14 +268,14 @@ static void gfx_close_button_callback(void) {
  * On platforms that have a close button, this routine installs a
  * callback function to handle the close event. In other words, when
  * the user clicks the close button on your program's window or any
- * equivalent device, the function you specify here will be called.
+ * equivalent device, the block you specify here will be called.
  */
-static VALUE gfx_set_close_button_callback(VALUE self, VALUE proc) {
-  if(! rb_obj_is_kind_of(proc, rb_cProc) && ! NIL_P(proc)) {
-    rb_raise(rb_eTypeError, "expected Proc");
+static VALUE gfx_on_close(VALUE self) {
+  if(!rb_block_given_p()) {
+    rb_raise(rb_eArgError, "expected block");
   }
 
-  close_button_callback_proc = proc;
+  close_button_callback_proc = rb_block_proc();
 
   return self;
 }
@@ -316,6 +316,7 @@ static VALUE gfx_message(VALUE self, VALUE msg_text) {
  */
 static VALUE gfx_set_alpha_blender(VALUE self) {
   set_alpha_blender();
+  return self;
 }
 
 /**
@@ -690,7 +691,7 @@ void Init_allegro_gfx() {
   rb_define_module_function(m_allegro_gfx, "vsync",				gfx_vsync,		0);
   rb_define_module_function(m_allegro_gfx, "retrace_count",			gfx_retrace_count,		0);
   rb_define_module_function(m_allegro_gfx, "set_window_title",			gfx_set_window_title,			1);
-  rb_define_module_function(m_allegro_gfx, "set_close_button_callback",		gfx_set_close_button_callback,			1);
+  rb_define_module_function(m_allegro_gfx, "on_close",				gfx_on_close,			0);
   rb_define_module_function(m_allegro_gfx, "desktop_resolution",		gfx_get_desktop_resolution,	0);
   rb_define_module_function(m_allegro_gfx, "message",				gfx_message,		1);
   rb_define_module_function(m_allegro_gfx, "set_alpha_blender",			gfx_set_alpha_blender,		0);

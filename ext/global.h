@@ -8,6 +8,11 @@
 #define _RB_ALLEG_GLOBAL
 
 #include "allegro.h"
+
+#ifdef _MSC_VER
+#include "winalleg.h"
+#endif
+
 #include "ruby.h"
 
 extern VALUE m_allegro;
@@ -51,8 +56,9 @@ static inline void rb_raise_arg_error(char *expected, VALUE x)
 }
 
 static inline VALUE rb_sym_to_const(VALUE scope, VALUE sym) {
+  VALUE str;
   Check_Type(sym, T_SYMBOL);
-  VALUE str = rb_str_new2(rb_id2name(SYM2ID(sym)));
+  str = rb_str_new2(rb_id2name(SYM2ID(sym)));
   rb_funcall(str, rb_intern("upcase!"), 0);
   return rb_const_get(scope, rb_intern(STR2CSTR(str)));
 }
@@ -127,12 +133,12 @@ static inline unsigned long color_to_int(VALUE value)
 }
 
 
-static inline void putpixel(BITMAP *bmp, int x, int y, int color)
+static inline void put_pixel(BITMAP *bmp, int x, int y, int color)
 {
   ((long *)bmp->line[y])[x] = color;
 }
 
-static inline int getpixel(BITMAP *bmp, int x, int y)
+static inline int get_pixel(BITMAP *bmp, int x, int y)
 {
   return ((long *)bmp->line[y])[x];
 }

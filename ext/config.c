@@ -79,7 +79,7 @@ static VALUE config_get(VALUE self, VALUE section, VALUE name) {
 
   Check_Type(name, T_STRING);
 
-  return (VALUE) get_config_string(NILP(section) ? NULL : STR2CSTR(section),
+  return (VALUE) get_config_string(NIL_P(section) ? NULL : STR2CSTR(section),
 				   STR2CSTR(name),
 				   (char *) Qnil);
 }
@@ -140,7 +140,7 @@ static VALUE config_set(VALUE self, VALUE section, VALUE name, VALUE val) {
   Check_Type(name, T_STRING);
   Check_Type(val, T_STRING);
 
-  set_config_string(NILP(section) ? NULL : STR2CSTR(section),
+  set_config_string(NIL_P(section) ? NULL : STR2CSTR(section),
 		    STR2CSTR(name), 
 		    STR2CSTR(val));
   return val;

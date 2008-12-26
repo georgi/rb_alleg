@@ -5,9 +5,11 @@
  * mono VOC files, in 8 or 16-bit formats.
  */
 static VALUE sample_load(VALUE self, VALUE filename) {
+  SAMPLE *sample;
+
   Check_Type(filename, T_STRING);
 
-  SAMPLE *sample = load_sample(STR2CSTR(filename));
+  sample = load_sample(STR2CSTR(filename));
 
   if (!sample) {
     rb_raise(rb_eRuntimeError, "could not load sample");

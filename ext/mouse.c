@@ -50,8 +50,10 @@ static VALUE mouse_show(VALUE self, VALUE bmp) {
 }
 
 static int cursor_type(VALUE type) {
+  ID id;
+
   Check_Type(type, T_SYMBOL);
-  ID id = SYM2ID(type);
+  id = SYM2ID(type);
 
   if (id == rb_intern("none")) {
     return MOUSE_CURSOR_NONE;
@@ -211,10 +213,10 @@ typedef struct {
   int x;
   int y;
   int z;
-} mouse_event;
+} _mouse_event;
 
 struct {
-  mouse_event queue[255];
+  _mouse_event queue[255];
   unsigned int start;
   unsigned int end;
 } mouse_buffer;
@@ -250,7 +252,7 @@ static VALUE mouse_events(VALUE self) {
   VALUE ary = rb_ary_new();  
 
   for (i = mouse_buffer.start; i < mouse_buffer.end; i++) {
-    mouse_event e = mouse_buffer.queue[i & 255];
+    _mouse_event e = mouse_buffer.queue[i & 255];
     rb_ary_push(ary, rb_ary_new3(4,
 				 ID2SYM(mouse_event_symbol(e.flags)),
 				 INT2FIX(e.x),

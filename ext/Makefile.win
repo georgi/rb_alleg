@@ -1,0 +1,17 @@
+MS_LIBS = kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib
+
+CFLAGS = -nologo -D _WINDLL -c -O2
+LIBPATH = /LIBPATH:../lib 
+
+LIBS = msvcrt-ruby18.lib alleg.lib libpng.lib
+INCLUDES = -I include
+
+CC = cl $(CFLAGS) $(INCLUDES)  
+LN = link /NOLOGO /DLL $(LIBPATH) $(MS_LIBS) $(LIBS)
+
+.c.obj:
+	$(CC) $*.c
+
+all: bitmap.obj color.obj config.obj fx.obj gfx.obj joystick.obj key.obj mouse.obj rb_alleg.obj sound.obj text.obj decode.obj encode.obj io.obj jpgalleg.obj loadpng.obj savepng.obj regpng.obj
+	$(LN) -out:../lib/Allegro.so $**
+

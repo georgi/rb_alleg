@@ -6,13 +6,13 @@ rb_alleg.c
 
 *******************************************************************************************/
 
-
-#include "allegro.h"
+#include "global.h"
 #include "jpgalleg.h"
 #include "loadpng.h"
-#include "ruby.h"
 
-// __declspec( dllexport ) void Init_Allegro ();
+#ifdef _MSC_VER
+__declspec( dllexport ) void Init_Allegro ();
+#endif
 
 VALUE m_allegro;
 VALUE m_allegro_gfx;

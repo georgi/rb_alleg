@@ -1,4 +1,7 @@
-require "../ext/Allegro.so"
+Dir.chdir('../lib') do
+  require "../ext/Allegro.so"
+end
+
 include Allegro
 
 class Sprite
@@ -47,10 +50,9 @@ class Sprite
 
 end
 
-# Gfx.set_close_button_callback(method(:exit).to_proc)
 Gfx.set_mode(:autodetect_windowed, 600, 400)
 
-buf  = Bitmap.new(Screen.width, Screen.height)
+buf = Bitmap.new(Screen.width, Screen.height)
 
 seq = [:bk1, :bk2, :fr1, :fr2, :lf1, :lf2, :rt1, :rt2].map do |name|
   bmp = Bitmap.load("sprites/amg1_#{name}.png")

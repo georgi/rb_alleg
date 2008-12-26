@@ -178,13 +178,14 @@ static VALUE bitmap_to_ary(VALUE self) {
  * Loads the bitmap from an array of color objects.
  */
 static VALUE bitmap_from_ary(VALUE self, VALUE _ary) {
+  struct RArray * ary;
   BITMAP *bmp = _get_bmp(self);
   long   len  = bmp->w * bmp->h;
   int x, y;
   int i = 0;
 
   Check_Type(_ary, T_ARRAY);  
-  struct RArray * ary = RARRAY(_ary);
+  ary = RARRAY(_ary);
 
   if (ary->len != len) {
     rb_raise(rb_eArgError, "array length is not width * height");
@@ -194,7 +195,7 @@ static VALUE bitmap_from_ary(VALUE self, VALUE _ary) {
 
   for (y = 0; y < bmp->h; ++y) {
     for (x = 0; x < bmp->w; ++x) {
-      putpixel(bmp, x, y, color_to_int(ary->ptr[i]));
+      put_pixel(bmp, x, y, color_to_int(ary->ptr[i]));
     }
   }
 
@@ -220,7 +221,7 @@ static VALUE bitmap_set_mask(VALUE self, VALUE color) {
   for (y = 0; y < bmp->h; ++y) {
     for (x = 0; x < bmp->w; ++x) {
       if (getpixel(bmp, x, y) == col) {
-	putpixel(bmp, x, y, mask);
+	put_pixel(bmp, x, y, mask);
       }
     }
   }
@@ -559,7 +560,7 @@ static VALUE bitmap_masked_stretch_blit(VALUE self, VALUE target, VALUE x1, VALU
 
 
 /**
- * call-seq: draw(mode, bitmap, x, y, angle_or_color = 0, scale =)
+ * call-seq: draw(mode, bitmap, x, y, angle_or_color = 0, scale = 0)
  * 
  * Mode is one of :normal, :lit, :trans, :rotate, :rotate_scaled.
  * Draw specified bitmap onto this bitmap. It is placed with its top
@@ -570,30 +571,31 @@ static VALUE bitmap_masked_stretch_blit(VALUE self, VALUE target, VALUE x1, VALU
  * of the angle will make the sprite rotate clockwise on the screen.
  */
 static VALUE bitmap_draw(int argc, VALUE *argv, VALUE self)	 {
-  VALUE mode, sprite, x, y, angle, scale, color;
+  VALUE mode, sprite, x, y, angcol, scale;
+  ID id;
 
-  rb_scan_args(argc, argv, "13", &mode, &sprite, &x, &y);
+  rb_scan_args(argc, argv, "15", &mode, &sprite, &x, &y, &angcol, &scale);
     
   Check_Type(mode, T_SYMBOL);
 
-  ID id = SYM2ID(mode);
+  id = SYM2ID(mode);
 
   if (id == rb_intern("normal")) {
     draw_sprite(_get_bmp(self), get_bmp(sprite), NUM2INT(x), NUM2INT(y));
   }        
   else if (id == rb_intern("lit")) {
-    draw_lit_sprite(_get_bmp(self), get_bmp(sprite), NUM2INT(x), NUM2INT(y), color_to_int(color));
+    draw_lit_sprite(_get_bmp(self), get_bmp(sprite), NUM2INT(x), NUM2INT(y), color_to_int(angcol));
   }
   else if (id == rb_intern("trans")) {
     draw_trans_sprite(_get_bmp(self), get_bmp(sprite), NUM2INT(x), NUM2INT(y));
   }
   else if (id == rb_intern("rotate")) {
     rotate_sprite(_get_bmp(self), get_bmp(sprite), NUM2INT(x), NUM2INT(y),
-		  ftofix(NUM2DBL(angle) * 128 / PI));
+		  ftofix(NUM2DBL(angcol) * 128 / PI));
   }
   else if (id == rb_intern("rotate_scaled")) {        
     rotate_scaled_sprite(_get_bmp(self), get_bmp(sprite), NUM2INT(x), NUM2INT(y),
-			 ftofix(NUM2DBL(angle) * 128 / PI), ftofix(NUM2DBL(scale)));
+			 ftofix(NUM2DBL(angcol) * 128 / PI), ftofix(NUM2DBL(scale)));
   }
     
   return self;
@@ -606,12 +608,7 @@ static VALUE bitmap_draw(int argc, VALUE *argv, VALUE self)	 {
  * current drawing mode and the bitmap's clipping rectangle.
  */
 static VALUE bitmap_putpixel(VALUE self, VALUE x, VALUE y, VALUE color) {
-  switch (bitmap_color_depth(_get_bmp(self))) {
-  case 8: putpixel8(_get_bmp(self), NUM2INT(x), NUM2INT(y), color_to_int(color)); break;
-  case 16: putpixel16(_get_bmp(self), NUM2INT(x), NUM2INT(y), color_to_int(color)); break;
-  case 24: 
-  case 32: putpixel32(_get_bmp(self), NUM2INT(x), NUM2INT(y), color_to_int32(color)); break;
-  }
+  putpixel(_get_bmp(self), NUM2INT(x), NUM2INT(y), color_to_int(color));
   return self;
 }
 
@@ -621,12 +618,7 @@ static VALUE bitmap_putpixel(VALUE self, VALUE x, VALUE y, VALUE color) {
  * Read a pixel from point (x, y) in the bitmap. 
  */
 static VALUE bitmap_getpixel(VALUE self, VALUE x, VALUE y) {
-  switch (bitmap_color_depth(_get_bmp(self))) {
-  case 8: return int_to_color(getpixel8(_get_bmp(self), NUM2INT(x), NUM2INT(y)));
-  case 16: return int_to_color(getpixel16(_get_bmp(self), NUM2INT(x), NUM2INT(y)));
-  case 24: 
-  case 32: return int_to_color(getpixel32(_get_bmp(self), NUM2INT(x), NUM2INT(y)));
-  }
+  return int_to_color(getpixel(_get_bmp(self), NUM2INT(x), NUM2INT(y)));
 }
 
 /**
